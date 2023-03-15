@@ -1,4 +1,4 @@
-import { Component } from 'react'
+import { useEffect, useState } from 'react'
 import  { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
 
@@ -12,105 +12,87 @@ import { Loader } from './Loader/Loader';
 import { Button } from "components/Button/Button";
 import { Modal } from './Modal/Modal';
 
+ 
+ export const App=()=>{
+  const [img, setImg] = useState([])
+  const[loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const[search, setSearch] = useState('')
+  const[page, setPage] = useState(1)
+  const [totalImg, setTotalImg] = useState(null)
+  const[isModalOpen, setIsModalOpen] = useState(false)
+  const[imgInModal, setImgInModal] = useState()
+  const [btnMore, setBtnMore] = useState(false)
 
-export class App extends Component {
-  state ={
-    img: [],
-    loading: false,
-    error: null,
-    search: '',
-    page: 1,
-    totalImg: null,
-    isModalOpen: false,
-    imgInModal: null,
+ useEffect(()=>{
+  
+  setLoading(true)
+  
+  getImg(search, page)
+    .then(data => {
+      if(data.hits.length==0){
+        setImg([])
+        console.log('sdf')
+        toast('не вірний запит')
+       setBtnMore(false)
+        return
+      }
+      setBtnMore(true)
+      setImg([...img, ...data.hits])
+      setTotalImg(data.totalHits)
+      setError(null)
+    })
+    .catch(error => setError(error.message))
+    .finally(() =>setLoading(false));
+    return()=>{console.log('трот')}
 
-  }
-  componentDidUpdate(_, prevState){
-    const { search, page} = this.state;
+ }, [search, page])
 
 
-    if (prevState.search !== search || prevState.page !== page) {
-     
-      this.setState({ loading: true });
-      getImg(search, page)
-
-        .then(data => {
-          if(data.hits.length<=0){
-            this.setState({img:[]})
-            toast('не вірний запит')
-            return
-          }
-          this.setState(({ img }) => ({
-            img: [...img, ...data.hits],
-          }));
-          this.setState({ totalImg: data.totalHits });
-         
-        })
-
-        .catch(error => this.setState({ error: error.message }))
-        .finally(() => this.setState({ loading: false }));
-    }
-  }
-
-  handleSabmit=({ search }) => {
-    this.setState({ search: search.trim(), img: [], page: 1 });
+  const handleSabmit=({ search }) => {
+    setSearch(search.trim())
+    setImg([])
+    setPage(1)
     document.querySelector('input').value = '';
   };
+  const handleMore=()=>{
+    console.log('sd')
+    setPage(prevPage => prevPage + 1)
+  }
+  const openModal = (image) => {
+     setIsModalOpen(true)
+     setImgInModal(image)
+   }
+   const closeModal=()=>{
+    setIsModalOpen(!isModalOpen)
+    setImgInModal(null)
+  }
+
+    return (
+      <div className={css.App}>
+        <Toaster
+        toastOptions={{
+          duration: 1000,
+          style: {
+            width: '150px',
+            background: '#363636',
+            color: '#fffa',
+          }}}
+        />
+         <Searchbar onSubmit={handleSabmit} />
   
-
-  handleMore=()=>{
-    this.setState(prevState =>{
-      return{
-        page: prevState.page +1
-      }
-    })
+         <ImageGallery
+          img={img}
+          openModal={openModal}
+          /> 
+         {loading  && (<Loader className={css.Loader}/>)}
+         {btnMore && <Button onClick={handleMore}/>}
+  
+         {isModalOpen && (
+         <Modal onClose={closeModal}>
+          <img src={imgInModal} alt={img.tags} width='400' />
+         </Modal>)}
+  
+      </div>
+    )
   }
-
-  openModal = (image) => {
-   this.setState({
-    isModalOpen: true, 
-    imgInModal: image,})
-  }
-
-  closeModal=()=>{
-    const {isModalOpen} =this.state
-    this.setState({
-      isModalOpen: !isModalOpen, 
-      imgInModal: null,
-
-    })
-  }
-  render(){
-    const {isModalOpen, img, loading, imgInModal, totalImg} =this.state
-    const {handleSabmit, openModal, handleMore, closeModal} =this
-  return (
-    <div className={css.App}>
-      <Toaster
-      toastOptions={{
-        duration: 1000,
-        style: {
-          width: '150px',
-          background: '#363636',
-          color: '#fffa',
-        }}}
-      />
-       <Searchbar onSubmit={handleSabmit} />
-
-       <ImageGallery
-        img={img}
-        openModal={openModal}
-        /> 
-
-       {loading  && (<Loader className={css.Loader}/>)}
-
-       {img.length < totalImg  && <Button onClick={handleMore}/>}
-
-       {isModalOpen && (
-       <Modal onClose={closeModal}>
-        <img src={imgInModal} alt={img.tags} width='400' />
-       </Modal>)}
-
-    </div>
-  )}
-}
- 
