@@ -27,10 +27,10 @@ import { Modal } from './Modal/Modal';
  useEffect(()=>{
   
   setLoading(true)
-  
+
   getImg(search, page)
     .then(data => {
-      if(data.hits.length==0){
+      if(data.hits.length===0){
         setImg([])
         console.log('sdf')
         toast('не вірний запит')
@@ -40,7 +40,7 @@ import { Modal } from './Modal/Modal';
       setBtnMore(true)
       setImg([...img, ...data.hits])
       setTotalImg(data.totalHits)
-      setError(null)
+
     })
     .catch(error => setError(error.message))
     .finally(() =>setLoading(false));
@@ -63,7 +63,7 @@ import { Modal } from './Modal/Modal';
      setIsModalOpen(true)
      setImgInModal(image)
    }
-   const closeModal=()=>{
+   const onClose=()=>{
     setIsModalOpen(!isModalOpen)
     setImgInModal(null)
   }
@@ -89,7 +89,7 @@ import { Modal } from './Modal/Modal';
          {btnMore && <Button onClick={handleMore}/>}
   
          {isModalOpen && (
-         <Modal onClose={closeModal}>
+         <Modal onClose={onClose}>
           <img src={imgInModal} alt={img.tags} width='400' />
          </Modal>)}
   
