@@ -16,7 +16,6 @@ import { Modal } from './Modal/Modal';
  export const App=()=>{
   const [img, setImg] = useState([])
   const[loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
   const[search, setSearch] = useState('')
   const[page, setPage] = useState(1)
   const [totalImg, setTotalImg] = useState(null)
@@ -25,9 +24,7 @@ import { Modal } from './Modal/Modal';
   const [btnMore, setBtnMore] = useState(false)
 
  useEffect(()=>{
-  
   setLoading(true)
-
   getImg(search, page)
     .then(data => {
       if(data.hits.length===0){
@@ -40,14 +37,11 @@ import { Modal } from './Modal/Modal';
       setBtnMore(true)
       setImg([...img, ...data.hits])
       setTotalImg(data.totalHits)
-
     })
-    .catch(error => setError(error.message))
+    .catch(error => toast(error.message))
     .finally(() =>setLoading(false));
     return()=>{console.log('трот')}
-
  }, [search, page])
-
 
   const handleSabmit=({ search }) => {
     setSearch(search.trim())
@@ -67,7 +61,6 @@ import { Modal } from './Modal/Modal';
     setIsModalOpen(!isModalOpen)
     setImgInModal(null)
   }
-
     return (
       <div className={css.App}>
         <Toaster
@@ -80,14 +73,12 @@ import { Modal } from './Modal/Modal';
           }}}
         />
          <Searchbar onSubmit={handleSabmit} />
-  
          <ImageGallery
           img={img}
           openModal={openModal}
           /> 
          {loading  && (<Loader className={css.Loader}/>)}
          {btnMore && <Button onClick={handleMore}/>}
-  
          {isModalOpen && (
          <Modal onClose={onClose}>
           <img src={imgInModal} alt={img.tags} width='400' />
