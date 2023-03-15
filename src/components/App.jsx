@@ -78,7 +78,7 @@ import { Modal } from './Modal/Modal';
           openModal={openModal}
           /> 
          {loading  && (<Loader className={css.Loader}/>)}
-         {btnMore && <Button onClick={handleMore}/>}
+         {(img.length < totalImg && btnMore )&& (<Button onClick={handleMore}/>)}
          {isModalOpen && (
          <Modal onClose={onClose}>
           <img src={imgInModal} alt={img.tags} width='400' />
