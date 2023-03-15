@@ -35,7 +35,7 @@ import { Modal } from './Modal/Modal';
         return
       }
       setBtnMore(true)
-      setImg([img, ...data.hits])
+      setImg(img => [...img, ...data.hits])
       setTotalImg(data.totalHits)
     })
     .catch(error => toast(error.message))
